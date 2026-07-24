@@ -1,0 +1,179 @@
+warning: in the working copy of '1_Temperature_Conversion_workflow.ipynb', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '2_Simple_QA_LLM_Workflow.ipynb', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '3_Prompt_Chaining_Workflow.ipynb', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '5_Essay_workflow.ipynb', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '6_Content_Moderation_Workflow.ipynb', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '7_Review_workflow.ipynb', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '8_Iterative_Workflows.ipynb', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/1_Temperature_Conversion_workflow.ipynb b/1_Temperature_Conversion_workflow.ipynb[m
+[1mindex e69de29..539fadf 100644[m
+[1m--- a/1_Temperature_Conversion_workflow.ipynb[m
+[1m+++ b/1_Temperature_Conversion_workflow.ipynb[m
+[36m@@ -0,0 +1,212 @@[m
+[32m+[m[32m{[m
+[32m+[m[32m "cells": [[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "markdown",[m
+[32m+[m[32m   "id": "62e3d8e0",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "### Imports"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "code",[m
+[32m+[m[32m   "execution_count": 6,[m
+[32m+[m[32m   "id": "c7530bdb",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "outputs": [],[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "from langgraph.graph import StateGraph,START,END"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "markdown",[m
+[32m+[m[32m   "id": "94782056",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "### define state"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "code",[m
+[32m+[m[32m   "execution_count": 16,[m
+[32m+[m[32m   "id": "cd5b914b",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "outputs": [],[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "from typing import TypedDict\n",[m
+[32m+[m[32m    "class TemperatureState(TypedDict):\n",[m
+[32m+[m[32m    "    temp_celsius:float\n",[m
+[32m+[m[32m    "    temp_fahrenheit:float\n",[m
+[32m+[m[32m    "    weather_label:str"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "markdown",[m
+[32m+[m[32m   "id": "9126fb95",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "### convert temperature Function (first node)"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "code",[m
+[32m+[m[32m   "execution_count": 28,[m
+[32m+[m[32m   "id": "fc8a0d94",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "outputs": [],[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "def convert_temp(state):\n",[m
+[32m+[m[32m    "    celsius = state[\"temp_celsius\"]\n",[m
+[32m+[m[32m    "    fahrenheit = (celsius * 9/5) + 32\n",[m
+[32m+[m[32m    "    state[\"temp_fahrenheit\"] = fahrenheit\n",[m
+[32m+[m[32m    "    return state"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "markdown",[m
+[32m+[m[32m   "id": "37115e03",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "### lebel weather"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "code",[m
+[32m+[m[32m   "execution_count": 29,[m
+[32m+[m[32m   "id": "691bd9ef",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "outputs": [],[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "def label_weather(state:TemperatureState)->TemperatureState:\n",[m
+[32m+[m[32m    "    fahrenheit = state['temp_fahrenheit']\n",[m
+[32m+[m[32m    "    if fahrenheit>=86:\n",[m
+[32m+[m[32m    "        state[\"weather_label\"]=\"Hot\"\n",[m
+[32m+[m[32m    "    elif fahrenheit>=68:\n",[m
+[32m+[m[32m    "        state[\"weather_label\"]=\"Warm\"\n",[m
+[32m+[m[32m    "    else:\n",[m
+[32m+[m[32m    "        state[\"weather_label\"]=\"Cool\"\n",[m
+[32m+[m[32m    "    return state"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "markdown",[m
+[32m+[m[32m   "id": "cc8bb06c",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "### define and compile Graph"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "code",[m
+[32m+[m[32m   "execution_count": 30,[m
+[32m+[m[32m   "id": "d401580a",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "outputs": [],[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "graph = StateGraph(TemperatureState)\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "graph.add_node('convert_temp',convert_temp)\n",[m
+[32m+[m[32m    "graph.add_node('label_weather',label_weather)\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "#add edges\n",[m
+[32m+[m[32m    "graph.add_edge(START,'convert_temp')\n",[m
+[32m+[m[32m    "graph.add_edge('convert_temp','label_weather')\n",[m
+[32m+[m[32m    "graph.add_edge('label_weather',END)\n",[m
+[32m+[m[32m    "\n",[m
+[32m+[m[32m    "#complie\n",[m
+[32m+[m[32m    "workflow = graph.compile()\n"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "markdown",[m
+[32m+[m[32m   "id": "a0d89697",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "### execute the graph"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "code",[m
+[32m+[m[32m   "execution_count": 31,[m
+[32m+[m[32m   "id": "07f8b9ba",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "outputs": [[m
+[32m+[m[32m    {[m
+[32m+[m[32m     "data": {[m
+[32m+[m[32m      "text/plain": [[m
+[32m+[m[32m       "{'temp_celsius': 25.0, 'temp_fahrenheit': 77.0, 'weather_label': 'Warm'}"[m
+[32m+[m[32m      ][m
+[32m+[m[32m     },[m
+[32m+[m[32m     "execution_count": 31,[m
+[32m+[m[32m     "metadata": {},[m
+[32m+[m[32m     "output_type": "execute_result"[m
+[32m+[m[32m    }[m
+[32m+[m[32m   ],[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "initial_state={'temp_celsius': 25.0}\n",[m
+[32m+[m[32m    "final_state=workflow.invoke(initial_state)\n",[m
+[32m+[m[32m    "final_state"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "markdown",[m
+[32m+[m[32m   "id": "cd4feb71",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "source": [[m
+[32m+[m[32m    "### Visualize Graph"[m
+[32m+[m[32m   ][m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m   "cell_type": "code",[m
+[32m+[m[32m   "execution_count": 32,[m
+[32m+[m[32m   "id": "20f4920f",[m
+[32m+[m[32m   "metadata": {},[m
+[32m+[m[32m   "outputs": [[m
+[32m+[m[32m    {[m
+[32m+[m[32m     "data": {[m
+[32m+[m[32m      "image/png": "iVBORw0KGgoAAAANSUhEUgAAAJIAAAFNCAIAAABkBqGXAAAQAElEQVR4nOydB0AT1//AX3ZI2HsPAReogDirgiBaixMcFfeo2lZrtXZr6/hV62h//VvbWn+u1j2w7j3r3oAIWgcgsjckkEGS/zccRtQQaZsLvuN9SuPdu3fzc2/cu3t3XI1Ggwi4wUYEDCHasIRowxKiDUuINiwh2rCEixqPm6eLsh/IpOXVahVSyLXXISwWCy5IWFqQWq1hs1nwqw1HSKOdiqirFV04nHTqOgukwqmFwLBGDXNpWNqB2l8qmjaCdoqeTYJosC7105hs2Iw60TiwEJZaYMaxduD5txf7tLJEjQTL9NdtR37LzrxfpajSsDlIIGRz+WwOl6VS1GwNG2m0HuAos7VH+ZkWrTX108xBw9KKrHGi/U87qNFKfWpIuxD4Vau10WqXSZmn9plVM6hfm3ZFGt25oPXLejaVowGjSrlGqVCrq7XLtLTltouwbtvFGpkWk2rbu+pJ1gMZX8jyaGH2xgB7cys+wpl718sTzpUWZys4PFbX/naBJpRnIm15mdI9P+XyBOzwoXbNAhstb6GJY5tzH9yUWNhxR3/hjUyCKbSd2pGbekUSEmnd5S17xFw2LU4vL65+b5kfoh/atWWkSg6uyzXNzjQ65/bmJP0pff872neWXm3HNuc8ui2d+m2TcEaRfLHo7K6S97+nd5dpvG67c6XkYULTcgYEdrULjrD69fOHiE5o1HZ2Z1HvMU6o6dG1n4O5FXfL0gxEG3Rp2
